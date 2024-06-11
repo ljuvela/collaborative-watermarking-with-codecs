@@ -1,6 +1,6 @@
 import torch
 
-from ..asvspoof2021.rawnet2.model import RawNet as RawNetBase
+from ..third_party.asvspoof2021.rawnet2.model import RawNet as RawNetBase
 
 from torchaudio.transforms import Resample
 

@@ -10,7 +10,7 @@ import importlib.util
 from types import SimpleNamespace
 
 
-from ..asvspoof2021.lfcc_lcnn.lfcc_lcnn import Model as LFCC_LCNN_Base
+from ..third_party.asvspoof2021.lfcc_lcnn.lfcc_lcnn import Model as LFCC_LCNN_Base
 
 class LFCC_LCNN(LFCC_LCNN_Base):
 

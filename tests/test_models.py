@@ -1,11 +1,9 @@
 import torch
 
-from collaborative_watermarking.models.lfcc_lcnn import LFCC_LCNN
-from collaborative_watermarking.models.rawnet2 import RawNet2
-
-
 def test_lfcc_lcnn():
         
+    from collaborative_watermarking.models.lfcc_lcnn import LFCC_LCNN
+
     model = LFCC_LCNN(in_dim=1, out_dim=1, sample_rate=16000)
 
     batch = 2
@@ -21,6 +19,8 @@ def test_lfcc_lcnn():
     assert x.grad is not None
 
 def test_rawnet():
+
+    from collaborative_watermarking.models.rawnet2 import RawNet2
 
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
