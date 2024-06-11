@@ -1,0 +1,27 @@
+name: CollaborativeWatermarking
+channels:
+  - nvidia
+  - pytorch
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pytorch
+  - pytorch-cuda=12.1
+  - torchvision
+  - torchaudio
+  - pytorch
+  - ipython
+  - torchaudio
+  - pysoundfile
+  - transformers
+  - scipy
+  - pytest 
+  - numpy
+  - librosa
+  - matplotlib
+  - cython
+  - unidecode
+  - pip
+  - pip:
+    - phonemizer
+    - ipdb
