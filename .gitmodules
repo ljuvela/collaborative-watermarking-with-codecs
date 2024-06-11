@@ -1,0 +1,9 @@
+[submodule "third_party/hifi-gan"]
+	path = third_party/hifi-gan
+	url = https://github.com/jik876/hifi-gan.git
+[submodule "third_party/vits"]
+	path = third_party/vits
+	url = https://github.com/jaywalnut310/vits.git
+[submodule "third_party/asvspoof-2021"]
+	path = third_party/asvspoof-2021
+	url = https://github.com/ljuvela/asvspoof-2021.git
