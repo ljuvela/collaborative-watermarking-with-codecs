@@ -21,6 +21,8 @@ dependencies:
   - matplotlib
   - cython
   - unidecode
+  - python-wget
+  - einops
   - pip
   - pip:
     - phonemizer
