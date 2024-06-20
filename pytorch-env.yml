@@ -4,14 +4,15 @@ channels:
   - pytorch
   - conda-forge
 dependencies:
-  - python=3.11
+  - python=3.10
   - pytorch
   - pytorch-cuda=12.1
   - torchvision
-  - torchaudio
+  - torchaudio>2.3
   - pytorch
   - ipython
   - torchaudio
+  - tensorboard
   - pysoundfile
   - transformers
   - scipy
@@ -23,6 +24,7 @@ dependencies:
   - unidecode
   - python-wget
   - einops
+  - ffmpeg<7
   - pip
   - pip:
     - phonemizer

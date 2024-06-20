@@ -2,3 +2,7 @@ experiments/*
 
 *.pyc
 *.egg-info
+
+*.conda
+
+ckpt/*
