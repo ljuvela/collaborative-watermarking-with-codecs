@@ -18,7 +18,7 @@ class LFCC_LCNN(LFCC_LCNN_Base):
                  sample_rate,
                  sigmoid_output=True,
                  dropout_prob=0.7,
-                 use_batch_norm=True):
+                 use_batch_norm=False):
         """
         Args: 
             in_dim: input dimension, default 1 for single channel wav
@@ -56,11 +56,11 @@ class LFCC_LCNN(LFCC_LCNN_Base):
             self.eval()
         else:
             for name, module in self.named_children():
-                print(name)
                 if name != 'gru':
                     module.eval()
             self.training = False
-            
+            self.m_before_pooling.train() # LSTM only passes gradients in train mode
+
 
     def forward(self, x):
         """

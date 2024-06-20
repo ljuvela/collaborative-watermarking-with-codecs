@@ -66,7 +66,6 @@ class RawNet2(RawNetBase):
             self.eval()
         else:
             for name, module in self.named_children():
-                print(name)
                 if name != 'gru':
                     module.eval()
             self.training = False
