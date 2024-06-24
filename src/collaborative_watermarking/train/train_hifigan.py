@@ -75,17 +75,17 @@ def train(rank, a, h):
         cp_wm = scan_checkpoint(a.checkpoint_path, 'wm_')
 
     steps = 0
+    last_epoch = -1
     if cp_g is None or cp_do is None:
         state_dict_do = None
-        last_epoch = -1
     else:
         state_dict_g = load_checkpoint(cp_g, device)
         state_dict_do = load_checkpoint(cp_do, device)
         generator.load_state_dict(state_dict_g['generator'])
         mpd.load_state_dict(state_dict_do['mpd'])
         msd.load_state_dict(state_dict_do['msd'])
-        steps = state_dict_do['steps'] + 1
-        last_epoch = state_dict_do['epoch']
+        # steps = state_dict_do['steps'] + 1
+        # last_epoch = state_dict_do['epoch']
 
     if cp_wm is None:
         state_dict_wm = None
@@ -418,8 +418,7 @@ def train(rank, a, h):
                         val_err = val_err_tot / (j+1)
                         sw.add_scalar("validation/mel_spec_error", val_err, steps)
 
-                        for label, metric in zip(watermark.get_labels(), watermark_metrics):
-                            sw.add_scalar(f"validation/watermark_{label}_equal_error_rate", metric.eer, steps)
+                        sw.add_scalar(f"validation/watermark_{watermark.model_type}_equal_error_rate", watermark_metrics.eer, steps)
 
                         if a.log_discriminator_validation_eer:
                             sw.add_scalar("validation/mpd_adversary_equal_error_rate", mpd_adversary_metrics.eer, steps)
