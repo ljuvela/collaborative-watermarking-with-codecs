@@ -147,16 +147,20 @@ def train(rank, a, h):
                               drop_last=True)
 
     # augmentation_train, augmentation_valid = get_augmentations(h, a, device=device)
-    augmentation_train = NoiseAugmentation(
-        Musan_Dataset(partition="train", segment_size=h.segment_size),
-        batch_size=h.batch_size,
-        num_workers=0,
-    )
-    augmentation_valid = NoiseAugmentation(
-        Musan_Dataset(partition="val", segment_size=h.segment_size),
-        batch_size=h.batch_size,
-        num_workers=0,
-    )
+    if a.use_augmentation:
+        augmentation_train = NoiseAugmentation(
+            Musan_Dataset(partition="train", segment_size=h.segment_size),
+            batch_size=h.batch_size,
+            num_workers=0,
+        )
+        augmentation_valid = NoiseAugmentation(
+            Musan_Dataset(partition="val", segment_size=h.segment_size),
+            batch_size=h.batch_size,
+            num_workers=0,
+        )
+    else:
+        augmentation_train = None
+        augmentation_valid = None
 
     if rank == 0:
         validset = MelDataset(
@@ -340,8 +344,7 @@ def train(rank, a, h):
                         sw.add_scalar(f"training_watermark/{watermark.model_type}_equal_error_rate", watermark_metrics.eer, steps)
 
                 # Validation
-                if steps % a.validation_interval == 0 or force_logging:
-                    # if steps % a.validation_interval == 0 and steps != 0:
+                if (steps % a.validation_interval == 0 and steps != 0) or force_logging:
                     print(f"Validating at step {steps}")
                     generator.eval()
                     mpd.eval()
@@ -467,7 +470,7 @@ def main():
     parser.add_argument('--log_discriminator_validation_eer', default=False)
     parser.add_argument('--fine_tuning', default=False, type=bool)
     parser.add_argument('--wavefile_ext', default='.wav', type=str)
-    parser.add_argument('--use_augmentation', default=False, type=bool)
+    parser.add_argument('--use_augmentation', default=False, type=int)
 
 
     a = parser.parse_args()
