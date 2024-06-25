@@ -20,14 +20,12 @@ from collaborative_watermarking.third_party.hifi_gan.utils import plot_spectrogr
 
 from collaborative_watermarking.meldataset import MelDataset, mel_spectrogram, get_dataset_filelist
 
-
 from collaborative_watermarking.metrics import DiscriminatorMetrics
 from collaborative_watermarking.models.watermark import WatermarkModel
-# from modules.augment import get_augmentations
+from collaborative_watermarking.augmentation import get_augmentations
 
 from darea.augmentation.noise import NoiseAugmentation
 from darea.datasets.musan import Musan_Dataset
-
 
 torch.backends.cudnn.benchmark = True
 
@@ -146,21 +144,7 @@ def train(rank, a, h):
                               pin_memory=True,
                               drop_last=True)
 
-    # augmentation_train, augmentation_valid = get_augmentations(h, a, device=device)
-    if a.use_augmentation:
-        augmentation_train = NoiseAugmentation(
-            Musan_Dataset(partition="train", segment_size=h.segment_size),
-            batch_size=h.batch_size,
-            num_workers=0,
-        )
-        augmentation_valid = NoiseAugmentation(
-            Musan_Dataset(partition="val", segment_size=h.segment_size),
-            batch_size=h.batch_size,
-            num_workers=0,
-        )
-    else:
-        augmentation_train = None
-        augmentation_valid = None
+    augmentation_train, augmentation_valid = get_augmentations(h, device=device, num_workers=1)
 
     if rank == 0:
         validset = MelDataset(
@@ -470,8 +454,6 @@ def main():
     parser.add_argument('--log_discriminator_validation_eer', default=False)
     parser.add_argument('--fine_tuning', default=False, type=bool)
     parser.add_argument('--wavefile_ext', default='.wav', type=str)
-    parser.add_argument('--use_augmentation', default=False, type=int)
-
 
     a = parser.parse_args()
 
