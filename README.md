@@ -77,3 +77,16 @@ python src/collaborative_watermarking/train/train_hifigan.py \
     --checkpoint_path "ckpt/cp_hifigan_$ID"
 
 ```
+
+
+### Installing DAC
+
+```
+git submodule update --init --recursive
+cd src/collaborative_watermarking/third_party/dac
+pip install -e ".[dev]"
+```
+
+Note that the pesq package needs to compile extensions and requires gcc or similar compiler on the system
+
+

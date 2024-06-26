@@ -1,0 +1,3 @@
+[submodule "src/collaborative_watermarking/third_party/dac"]
+	path = src/collaborative_watermarking/third_party/dac
+	url = https://github.com/descriptinc/descript-audio-codec.git

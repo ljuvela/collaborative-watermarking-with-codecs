@@ -1,4 +1,5 @@
 experiments/*
+scripts/local/*
 
 *.pyc
 *.egg-info
