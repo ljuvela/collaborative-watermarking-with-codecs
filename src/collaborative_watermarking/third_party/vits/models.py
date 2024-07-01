@@ -4,15 +4,15 @@ import torch
 from torch import nn
 from torch.nn import functional as F
 
-import commons
-import modules
-import attentions
-import monotonic_align
-
 from torch.nn import Conv1d, ConvTranspose1d, AvgPool1d, Conv2d
 from torch.nn.utils import weight_norm, remove_weight_norm, spectral_norm
-from commons import init_weights, get_padding
 
+from . import commons
+from . import modules
+from . import attentions
+from . import monotonic_align
+
+from .commons import init_weights, get_padding
 
 class StochasticDurationPredictor(nn.Module):
   def __init__(self, in_channels, filter_channels, kernel_size, p_dropout, n_flows=4, gin_channels=0):

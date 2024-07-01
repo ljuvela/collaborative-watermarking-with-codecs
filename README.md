@@ -89,4 +89,25 @@ pip install -e ".[dev]"
 
 Note that the pesq package needs to compile extensions and requires gcc or similar compiler on the system
 
+Download pretrained models
 
+```bash
+python3 -m dac download --model_type 44khz # downloads the 44kHz variant
+```
+
+### VITS setup
+
+Compile monotonic align
+```bash
+cd src/collaborative_watermarking/third_party/vits/monotonic_align
+python setup.py build_ext --inplace
+mkdir monotonic_align
+cp build/lib.linux-x86_64-cpython-310/vits/monotonic_align monotonic_align
+
+```
+
+
+```bash
+mkdir -p pre_trained/vits
+python -m gdown 
+```

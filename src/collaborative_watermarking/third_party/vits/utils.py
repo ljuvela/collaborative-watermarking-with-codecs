@@ -16,7 +16,8 @@ logger = logging
 
 
 def load_checkpoint(checkpoint_path, model, optimizer=None):
-  assert os.path.isfile(checkpoint_path)
+  if not os.path.isfile(checkpoint_path):
+    raise FileNotFoundError(f"Checkpoint path {checkpoint_path} does not exist")
   checkpoint_dict = torch.load(checkpoint_path, map_location='cpu')
   iteration = checkpoint_dict['iteration']
   learning_rate = checkpoint_dict['learning_rate']
