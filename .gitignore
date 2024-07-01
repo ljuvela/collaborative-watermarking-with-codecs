@@ -8,5 +8,6 @@ scripts/local/*
 
 ckpt/*
 ckpt_dac/*
+logs/*
 
 slurm-*.out

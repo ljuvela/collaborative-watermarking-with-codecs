@@ -109,5 +109,15 @@ cp build/lib.linux-x86_64-cpython-310/vits/monotonic_align monotonic_align
 
 ```bash
 mkdir -p pre_trained/vits
-python -m gdown 
+gdown -O pre_trained/vits/ 'https://drive.google.com/uc?id=1q86w74Ygw2hNzYP9cWkeClGT5X25PvBT'
+gdown -O pre_trained/vits/ 'https://drive.google.com/uc?id=11aHOlhnxzjpdWDpsz1vFDCzbeEfoIxru'
 ```
+
+LJSpeech data preparation
+
+Create filelists with absolute paths
+```bash
+python scripts/process_ljspeech_filelist.py --target_dir experiments/vits/filelists --prefix $DATA/LJSpeech-1.1/wavs/
+
+```
+

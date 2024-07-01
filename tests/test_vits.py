@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 
-import torchaudio
+import soundfile as sf
 
 import os
 import json
@@ -39,13 +39,19 @@ def test_vits_inference():
         **hps.model)
     _ = net_g.eval()
 
-    _ = utils.load_checkpoint("pretrained_ljs.pth", net_g, None)
+    _ = utils.load_checkpoint("./pre_trained/vits/pretrained_ljs.pth", net_g, None)
 
     stn_tst = get_text("We propose VITS, Conditional Variational Autoencoder with Adversarial Learning for End-to-End Text-to-Speech.", hps)
     with torch.no_grad():
         x_tst = stn_tst.unsqueeze(0)
         x_tst_lengths = torch.LongTensor([stn_tst.size(0)])
         audio = net_g.infer(x_tst, x_tst_lengths, noise_scale=.667, noise_scale_w=0.8, length_scale=1)[0][0,0].data.float().numpy()
+
+    output_dir = './output'
+    os.makedirs(output_dir, exist_ok=True)
+    sf.write(os.path.join(output_dir, 'vits.wav'), audio, hps.data.sampling_rate)
+
+
     # ipd.display(ipd.Audio(audio, rate=hps.data.sampling_rate))
 
 
