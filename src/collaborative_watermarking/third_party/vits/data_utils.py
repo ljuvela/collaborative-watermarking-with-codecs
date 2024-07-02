@@ -10,7 +10,7 @@ from . import commons
 from .mel_processing import spectrogram_torch
 from .utils import load_wav_to_torch, load_filepaths_and_text
 from .text import text_to_sequence, cleaned_text_to_sequence
-
+import torchaudio
 
 class TextAudioLoader(torch.utils.data.Dataset):
     """
@@ -21,7 +21,7 @@ class TextAudioLoader(torch.utils.data.Dataset):
     def __init__(self, audiopaths_and_text, hparams):
         self.audiopaths_and_text = load_filepaths_and_text(audiopaths_and_text)
         self.text_cleaners  = hparams.text_cleaners
-        self.max_wav_value  = hparams.max_wav_value
+        # self.max_wav_value  = hparams.max_wav_value
         self.sampling_rate  = hparams.sampling_rate
         self.filter_length  = hparams.filter_length 
         self.hop_length     = hparams.hop_length 
@@ -68,7 +68,6 @@ class TextAudioLoader(torch.utils.data.Dataset):
         if sampling_rate != self.sampling_rate:
             raise ValueError("{} {} SR doesn't match target {} SR".format(
                 sampling_rate, self.sampling_rate))
-        audio_norm = audio / self.max_wav_value
         audio_norm = audio_norm.unsqueeze(0)
         spec_filename = filename.replace(".wav", ".spec.pt")
         if os.path.exists(spec_filename):
@@ -159,12 +158,13 @@ class TextAudioSpeakerLoader(torch.utils.data.Dataset):
     def __init__(self, audiopaths_sid_text, hparams):
         self.audiopaths_sid_text = load_filepaths_and_text(audiopaths_sid_text)
         self.text_cleaners = hparams.text_cleaners
-        self.max_wav_value = hparams.max_wav_value
         self.sampling_rate = hparams.sampling_rate
         self.filter_length  = hparams.filter_length
         self.hop_length     = hparams.hop_length
         self.win_length     = hparams.win_length
         self.sampling_rate  = hparams.sampling_rate
+        self.resample = True
+        self.resamplers = torch.nn.ModuleDict()
 
         self.cleaned_text = getattr(hparams, "cleaned_text", False)
 
@@ -204,11 +204,21 @@ class TextAudioSpeakerLoader(torch.utils.data.Dataset):
     def get_audio(self, filename):
         audio, sampling_rate = load_wav_to_torch(filename)
         if sampling_rate != self.sampling_rate:
-            raise ValueError("{} {} SR doesn't match target {} SR".format(
-                sampling_rate, self.sampling_rate))
-        audio_norm = audio / self.max_wav_value
-        audio_norm = audio_norm.unsqueeze(0)
-        spec_filename = filename.replace(".wav", ".spec.pt")
+            if self.resample:
+                key = str(sampling_rate)
+                if key in self.resamplers.keys():
+                    resampler = self.resamplers[key]
+                else:
+                    resampler = torchaudio.transforms.Resample(
+                        orig_freq=sampling_rate, new_freq=self.sampling_rate)
+                    self.resamplers[key] = resampler
+                audio = resampler(audio)
+            else:
+                raise ValueError(f"SR {sampling_rate} doesn't match target {self.sampling_rate} SR. Use resample=True to resample audio.")
+
+        audio_norm = audio
+        ext = os.path.splitext(filename)[-1]
+        spec_filename = filename.replace(ext, ".spec.pt")
         if os.path.exists(spec_filename):
             spec = torch.load(spec_filename)
         else:

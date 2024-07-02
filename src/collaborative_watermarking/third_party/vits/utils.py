@@ -7,11 +7,14 @@ import json
 import subprocess
 import numpy as np
 from scipy.io.wavfile import read
+import torchaudio
 import torch
 
 MATPLOTLIB_FLAG = False
 
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+LOG_LEVEL = logging.INFO
+
+logging.basicConfig(stream=sys.stdout, level=LOG_LEVEL)
 logger = logging
 
 
@@ -132,8 +135,8 @@ def plot_alignment_to_numpy(alignment, info=None):
 
 
 def load_wav_to_torch(full_path):
-  sampling_rate, data = read(full_path)
-  return torch.FloatTensor(data.astype(np.float32)), sampling_rate
+  data, sampling_rate = torchaudio.load(full_path)
+  return data.to(torch.float32), sampling_rate
 
 
 def load_filepaths_and_text(filename, split="|"):
@@ -148,7 +151,9 @@ def get_hparams(init=True):
                       help='JSON file for configuration')
   parser.add_argument('-m', '--model', type=str, required=True,
                       help='Model name')
-  
+  parser.add_argument('--training_filelist', type=str, required=True)
+  parser.add_argument('--validation_filelist', type=str, required=True)
+
   args = parser.parse_args()
   model_dir = os.path.join("./logs", args.model)
 
@@ -169,6 +174,8 @@ def get_hparams(init=True):
   
   hparams = HParams(**config)
   hparams.model_dir = model_dir
+  hparams.training_filelist = args.training_filelist
+  hparams.validation_filelist = args.validation_filelist
   return hparams
 
 
@@ -215,13 +222,13 @@ def check_git_hash(model_dir):
 def get_logger(model_dir, filename="train.log"):
   global logger
   logger = logging.getLogger(os.path.basename(model_dir))
-  logger.setLevel(logging.DEBUG)
+  logger.setLevel(LOG_LEVEL)
   
   formatter = logging.Formatter("%(asctime)s\t%(name)s\t%(levelname)s\t%(message)s")
   if not os.path.exists(model_dir):
     os.makedirs(model_dir)
   h = logging.FileHandler(os.path.join(model_dir, filename))
-  h.setLevel(logging.DEBUG)
+  h.setLevel(LOG_LEVEL)
   h.setFormatter(formatter)
   logger.addHandler(h)
   return logger
