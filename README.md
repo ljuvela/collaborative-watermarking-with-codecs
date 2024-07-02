@@ -119,5 +119,7 @@ Create filelists with absolute paths
 ```bash
 python scripts/process_ljspeech_filelist.py --target_dir experiments/vits/filelists --prefix $DATA/LJSpeech-1.1/wavs/
 
+python scripts/process_vctk_filelist.py --target_dir experiments/vits/filelists --prefix $DATA/torchaudio/VCTK-Corpus-0.92/wav48_silence_trimmed/
+
 ```
 
