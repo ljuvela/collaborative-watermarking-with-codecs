@@ -39,37 +39,24 @@ if __name__ == "__main__":
 
     os.makedirs(args.target_dir, exist_ok=True)
 
-    # Keep text and append prefix
-    clean_vits_filelist(vits_filelist_train, os.path.join(args.target_dir, 'vctk_filelist_train_text.txt'), prefix=args.prefix, remove_text=False)
-    clean_vits_filelist(vits_filelist_val, os.path.join(args.target_dir, 'vctk_filelist_val_text.txt'), prefix=args.prefix, remove_text=False)
-    clean_vits_filelist(vits_filelist_test, os.path.join(args.target_dir, 'vctk_filelist_test_text.txt'), prefix=args.prefix, remove_text=False)
-
-    # Split text and remove prefix
-    clean_vits_filelist(vits_filelist_train, os.path.join(args.target_dir, 'vctk_filelist_train.txt'))
-    clean_vits_filelist(vits_filelist_val, os.path.join(args.target_dir, 'vctk_filelist_val.txt'))
-    clean_vits_filelist(vits_filelist_test, os.path.join(args.target_dir, 'vctk_filelist_test.txt'))
-    
-
     # Keep text and append prefix (local dirs)
     clean_vits_filelist(
         vits_filelist_train,
         os.path.join(args.target_dir, "vctk_filelist_train_text_local.txt"),
-        prefix="/tmp/ljuvela/data/vctk/train",
+        prefix=os.path.join(args.prefix, "train"),
         remove_text=False,
     )
     clean_vits_filelist(
         vits_filelist_val,
         os.path.join(args.target_dir, "vctk_filelist_val_text_local.txt"),
-        prefix="/tmp/ljuvela/data/vctk/val",
+        prefix=os.path.join(args.prefix, "val"),
         remove_text=False,
     )
     clean_vits_filelist(
         vits_filelist_test,
         os.path.join(args.target_dir, "vctk_filelist_test_text_local.txt"),
-        prefix="/tmp/ljuvela/data/vctk/test",
+        prefix=os.path.join(args.prefix, "test"),
         remove_text=False,
     )
-    
-    
     
     print('VITS VCTK filelists cleaned and saved to {}'.format(args.target_dir))
