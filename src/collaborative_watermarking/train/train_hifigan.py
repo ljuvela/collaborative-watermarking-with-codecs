@@ -24,8 +24,6 @@ from collaborative_watermarking.metrics import DiscriminatorMetrics
 from collaborative_watermarking.models.watermark import WatermarkModel
 from collaborative_watermarking.augmentation import get_augmentations
 
-from darea.augmentation.noise import NoiseAugmentation
-from darea.datasets.musan import Musan_Dataset
 
 torch.backends.cudnn.benchmark = True
 

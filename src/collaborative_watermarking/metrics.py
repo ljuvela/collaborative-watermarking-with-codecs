@@ -120,3 +120,19 @@ class WatermarkMetric():
         for model_label, metric in zip(model_labels, self.metrics):
             out_val.append((model_label, self.tag, metric.eer))
         return out_val
+    
+
+
+class WatermarkEER(torch.nn.Module):
+
+    def __init__(self, detector):
+        super().__init__()
+        self.detector = detector
+
+    def forward(self, real, fake):
+        metric = DiscriminatorMetrics()
+        with torch.no_grad():
+            wm_real, wm_fake = self.detector(real, fake)
+        
+        metric.accumulate([wm_real], [wm_fake])
+        return metric.eer
