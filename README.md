@@ -123,3 +123,13 @@ python scripts/process_vctk_filelist.py --target_dir experiments/vits/filelists 
 
 ```
 
+
+
+### Adding models to huggingface
+
+
+Initial git lsf setup
+```bash
+git-lfs track "*.pth"
+git add .gitattributes
+```

@@ -69,7 +69,6 @@ class WatermarkModel(BaseModel):
             raise NotImplementedError()
 
 
-
     def save_to_folder(
         self,
         folder: typing.Union[str, Path],
