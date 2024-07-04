@@ -6,6 +6,7 @@ from audiotools.ml import BaseModel
 
 from .lfcc_lcnn import LFCC_LCNN
 from .rawnet2 import RawNet2
+from .aasist import AASIST
 
 class WatermarkModel(BaseModel):
 
@@ -24,6 +25,12 @@ class WatermarkModel(BaseModel):
                 )
         elif model_type == 'raw_net':
             self.model = RawNet2(
+                sample_rate=sample_rate,
+                use_batch_norm=config.get('raw_net_use_batch_norm', True),
+                pad_input_to_len=config.get('raw_net_input_pad_len', None)
+            )
+        elif model_type == 'aasist':
+            self.model = AASIST(
                 sample_rate=sample_rate,
                 use_batch_norm=config.get('raw_net_use_batch_norm', True),
                 pad_input_to_len=config.get('raw_net_input_pad_len', None)
