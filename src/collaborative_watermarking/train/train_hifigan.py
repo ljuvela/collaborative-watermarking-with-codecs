@@ -257,7 +257,7 @@ def train(rank, a, h):
                     disc_real_outputs=y_wm_real, disc_generated_outputs=y_wm_fake)
 
             # Adversarial (S, F), Feature matching (S, F), Mel, Collaborative
-            loss_gen_all = loss_gen_s + loss_gen_f + loss_fm_s + loss_fm_f + loss_mel + loss_wm
+            loss_gen_all = loss_gen_s + loss_gen_f + loss_fm_s + loss_fm_f + loss_mel + h.watermark_loss_weight * loss_wm
 
             loss_gen_all.backward()
             optim_g.step()
