@@ -144,6 +144,8 @@ def train(rank, a, h):
 
     augmentation_train, augmentation_valid = get_augmentations(h, device=device, num_workers=1)
 
+    write_ground_truth_audio_to_tensorboard = True
+
     if rank == 0:
         validset = MelDataset(
             validation_filelist, 
@@ -389,9 +391,10 @@ def train(rank, a, h):
                             val_err_tot += F.l1_loss(y_mel, y_g_hat_mel).item()
 
                             if j <= 4:
-                                if steps == 0:
+                                if write_ground_truth_audio_to_tensorboard:
                                     sw.add_audio('gt/y_{}'.format(j), y[0], steps, h.sampling_rate)
                                     sw.add_figure('gt/y_spec_{}'.format(j), plot_spectrogram(x[0]), steps)
+                                    write_ground_truth_audio_to_tensorboard = False
 
                                 sw.add_audio('generated/y_hat_{}'.format(j), y_g_hat[0], steps, h.sampling_rate)
                                 y_hat_spec = mel_spectrogram(y_g_hat.squeeze(1), h.n_fft, h.num_mels,
