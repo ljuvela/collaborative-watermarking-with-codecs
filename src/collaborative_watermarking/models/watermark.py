@@ -42,22 +42,12 @@ class WatermarkModel(BaseModel):
 
     def load_pretrained_state_dict(self, state_dict):
 
-        if self.model_type == 'lfcc_lcnn':
-            state_dict_old = self.models['lfcc_lcnn'].state_dict()
-            optional_keys = ['resampler.kernel']
-            for ok in optional_keys:
-                val = state_dict.get(ok, state_dict_old[ok])
-                state_dict[ok] = val
-            self.models['lfcc_lcnn'].load_state_dict(state_dict)
-        elif self.model_type == 'raw_net':
-            state_dict_old = self.models['raw_net'].state_dict()
-            optional_keys = ['resampler.kernel']
-            for ok in optional_keys:
-                val = state_dict.get(ok, state_dict_old[ok])
-                state_dict[ok] = val
-            self.models['raw_net'].load_state_dict(state_dict)
-        else:
-            raise NotImplementedError()
+        state_dict_old = self.model.state_dict()
+        optional_keys = ['resampler.kernel']
+        for ok in optional_keys:
+            val = state_dict.get(ok, state_dict_old[ok])
+            state_dict[ok] = val
+        self.model.load_state_dict(state_dict, strict=False)
 
     def output_layer_requires_grad_(self, requires_grad: bool = True):
 
