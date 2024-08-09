@@ -60,7 +60,6 @@ def test_rawnet():
     assert x.grad is not None
 
 
-
 def test_rawnet_eval():
 
     from collaborative_watermarking.models.rawnet2 import RawNet2
@@ -83,3 +82,47 @@ def test_rawnet_eval():
 
     assert x.grad is not None
 
+
+def test_aasist():
+
+    from collaborative_watermarking.models.aasist import AASIST
+
+    device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
+
+    batch = 3
+    timesteps = 22050
+    channels = 1
+    x = 0.1 * torch.randn(batch, 1, timesteps, requires_grad=True)
+    x = torch.nn.Parameter(x)
+    x_dev = x.to(device)
+
+    model = AASIST(sample_rate=16000)
+    model = model.to(device)
+
+    scores = model.forward(x_dev)
+    scores.pow(2).sum().backward()
+
+    assert x.grad is not None
+
+def test_aaasist_eval():
+
+    from collaborative_watermarking.models.aasist import AASIST
+
+    device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
+
+    batch = 3
+    timesteps = 22050
+    channels = 1
+    x = 0.1 * torch.randn(batch, 1, timesteps, requires_grad=True)
+    x = torch.nn.Parameter(x)
+    x_dev = x.to(device)
+
+    model = AASIST(sample_rate=16000)
+    model = model.to(device)
+    model.eval(pass_gradients=True)
+
+    scores = model.forward(x_dev)
+    scores.pow(2).sum().backward()
+
+    assert x.grad is not None
+    
