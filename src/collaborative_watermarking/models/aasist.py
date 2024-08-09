@@ -38,13 +38,8 @@ class AASIST(AasistModelBase):
             'temperatures': temperatures
         }
 
-        if use_batch_norm is True:
-            batch_norm_always_eval = False
-        else:
-            batch_norm_always_eval = True
-
         super().__init__(d_args=d_args, device=device, 
-                         batch_norm_always_eval=batch_norm_always_eval)
+                         use_batch_norm=use_batch_norm)
 
         self.sample_rate = sample_rate
         if self.sample_rate != 16000:

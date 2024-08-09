@@ -97,6 +97,7 @@ def train(rank, a, h):
 
     if a.pretrained_watermark_path is not None:
         state_dict = torch.load(a.pretrained_watermark_path, map_location='cpu')
+        print(f"Loading pre-trained watermark model from {a.pretrained_watermark_path}")
         watermark.load_pretrained_state_dict(state_dict)
 
     if a.freeze_watermark_weights:

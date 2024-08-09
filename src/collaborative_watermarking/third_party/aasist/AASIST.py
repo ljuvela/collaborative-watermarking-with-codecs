@@ -15,8 +15,10 @@ from torch import Tensor
 
 
 class GraphAttentionLayer(nn.Module):
-    def __init__(self, in_dim, out_dim, **kwargs):
+    def __init__(self, in_dim, out_dim, temperature=1., use_batch_norm=True):
         super().__init__()
+
+        self.use_batch_norm = use_batch_norm
 
         # attention map
         self.att_proj = nn.Linear(in_dim, out_dim)
@@ -27,7 +29,7 @@ class GraphAttentionLayer(nn.Module):
         self.proj_without_att = nn.Linear(in_dim, out_dim)
 
         # batch norm
-        self.bn = nn.BatchNorm1d(out_dim)
+        self.bn = nn.BatchNorm1d(out_dim) if self.use_batch_norm else nn.Identity()
 
         # dropout for inputs
         self.input_drop = nn.Dropout(p=0.2)
@@ -36,13 +38,8 @@ class GraphAttentionLayer(nn.Module):
         self.act = nn.SELU(inplace=True)
 
         # temperature
-        self.temp = 1.
-        if "temperature" in kwargs:
-            self.temp = kwargs["temperature"]
+        self.temp = temperature
 
-        self.batch_norm_always_eval = False
-        if "batch_norm_always_eval" in kwargs:
-            self.batch_norm_always_eval = kwargs["batch_norm_always_eval"]
 
     def forward(self, x):
         '''
@@ -103,8 +100,6 @@ class GraphAttentionLayer(nn.Module):
     def _apply_BN(self, x):
         org_size = x.size()
         x = x.view(-1, org_size[-1])
-        if self.batch_norm_always_eval:
-            self.bn.eval()
         x = self.bn(x)
         x = x.view(org_size)
 
@@ -117,7 +112,7 @@ class GraphAttentionLayer(nn.Module):
 
 
 class HtrgGraphAttentionLayer(nn.Module):
-    def __init__(self, in_dim, out_dim, **kwargs):
+    def __init__(self, in_dim, out_dim, temperature=1., use_batch_norm=True):
         super().__init__()
 
         self.proj_type1 = nn.Linear(in_dim, in_dim)
@@ -139,8 +134,10 @@ class HtrgGraphAttentionLayer(nn.Module):
         self.proj_with_attM = nn.Linear(in_dim, out_dim)
         self.proj_without_attM = nn.Linear(in_dim, out_dim)
 
+        self.use_batch_norm = use_batch_norm
+
         # batch norm
-        self.bn = nn.BatchNorm1d(out_dim)
+        self.bn = nn.BatchNorm1d(out_dim) if self.use_batch_norm else nn.Identity()
 
         # dropout for inputs
         self.input_drop = nn.Dropout(p=0.2)
@@ -149,13 +146,9 @@ class HtrgGraphAttentionLayer(nn.Module):
         self.act = nn.SELU(inplace=True)
 
         # temperature
-        self.temp = 1.
-        if "temperature" in kwargs:
-            self.temp = kwargs["temperature"]
+        self.temp = temperature
 
-        self.batch_norm_always_eval = False
-        if "batch_norm_always_eval" in kwargs:
-            self.batch_norm_always_eval = kwargs["batch_norm_always_eval"]
+
 
     def forward(self, x1, x2, master=None):
         '''
@@ -281,8 +274,6 @@ class HtrgGraphAttentionLayer(nn.Module):
     def _apply_BN(self, x):
         org_size = x.size()
         x = x.view(-1, org_size[-1])
-        if self.batch_norm_always_eval:
-            self.bn.eval()
         x = self.bn(x)
         x = x.view(org_size)
 
@@ -423,14 +414,14 @@ class CONV(nn.Module):
 
 
 class Residual_block(nn.Module):
-    def __init__(self, nb_filts, first=False, batch_norm_always_eval=False):
+    def __init__(self, nb_filts, first=False, use_batch_norm=True):
         super().__init__()
         self.first = first
 
-        self.batch_norm_always_eval = batch_norm_always_eval
+        self.use_batch_norm = use_batch_norm
 
         if not self.first:
-            self.bn1 = nn.BatchNorm2d(num_features=nb_filts[0])
+            self.bn1 = nn.BatchNorm2d(num_features=nb_filts[0]) if self.use_batch_norm else nn.Identity()
         self.conv1 = nn.Conv2d(in_channels=nb_filts[0],
                                out_channels=nb_filts[1],
                                kernel_size=(2, 3),
@@ -438,7 +429,7 @@ class Residual_block(nn.Module):
                                stride=1)
         self.selu = nn.SELU(inplace=True)
 
-        self.bn2 = nn.BatchNorm2d(num_features=nb_filts[1])
+        self.bn2 = nn.BatchNorm2d(num_features=nb_filts[1]) if self.use_batch_norm else nn.Identity()
         self.conv2 = nn.Conv2d(in_channels=nb_filts[1],
                                out_channels=nb_filts[1],
                                kernel_size=(2, 3),
@@ -460,22 +451,15 @@ class Residual_block(nn.Module):
     def forward(self, x):
         identity = x
         if not self.first:
-            if self.batch_norm_always_eval:
-                self.bn1.eval()
             out = self.bn1(x)
             out = self.selu(out)
         else:
             out = x
         out = self.conv1(x)
 
-        # print('out',out.shape)
-        if self.batch_norm_always_eval:
-            self.bn2.eval()
         out = self.bn2(out)
         out = self.selu(out)
-        # print('out',out.shape)
         out = self.conv2(out)
-        #print('conv2 out',out.shape)
         if self.downsample:
             identity = self.conv_downsample(identity)
 
@@ -485,7 +469,7 @@ class Residual_block(nn.Module):
 
 
 class Model(nn.Module):
-    def __init__(self, d_args, device, batch_norm_always_eval):
+    def __init__(self, d_args, device, use_batch_norm=True):
         super().__init__()
 
         self.d_args = d_args
@@ -494,24 +478,24 @@ class Model(nn.Module):
         pool_ratios = d_args["pool_ratios"]
         temperatures = d_args["temperatures"]
 
-        self.batch_norm_always_eval = batch_norm_always_eval
+        self.use_batch_norm = use_batch_norm
 
         self.conv_time = CONV(out_channels=filts[0],
                               kernel_size=d_args["first_conv"],
                               in_channels=1)
-        self.first_bn = nn.BatchNorm2d(num_features=1)
+        self.first_bn = nn.BatchNorm2d(num_features=1) if self.use_batch_norm else nn.Identity()
 
         self.drop = nn.Dropout(0.5, inplace=True)
         self.drop_way = nn.Dropout(0.2, inplace=True)
         self.selu = nn.SELU(inplace=True)
 
         self.encoder = nn.Sequential(
-            nn.Sequential(Residual_block(nb_filts=filts[1], first=True, batch_norm_always_eval=batch_norm_always_eval)),
-            nn.Sequential(Residual_block(nb_filts=filts[2], batch_norm_always_eval=batch_norm_always_eval)),
-            nn.Sequential(Residual_block(nb_filts=filts[3], batch_norm_always_eval=batch_norm_always_eval)),
-            nn.Sequential(Residual_block(nb_filts=filts[4], batch_norm_always_eval=batch_norm_always_eval)),
-            nn.Sequential(Residual_block(nb_filts=filts[4], batch_norm_always_eval=batch_norm_always_eval)),
-            nn.Sequential(Residual_block(nb_filts=filts[4], batch_norm_always_eval=batch_norm_always_eval)))
+            nn.Sequential(Residual_block(nb_filts=filts[1], first=True, use_batch_norm=self.use_batch_norm)),
+            nn.Sequential(Residual_block(nb_filts=filts[2], use_batch_norm=self.use_batch_norm)),
+            nn.Sequential(Residual_block(nb_filts=filts[3], use_batch_norm=self.use_batch_norm)),
+            nn.Sequential(Residual_block(nb_filts=filts[4], use_batch_norm=self.use_batch_norm)),
+            nn.Sequential(Residual_block(nb_filts=filts[4], use_batch_norm=self.use_batch_norm)),
+            nn.Sequential(Residual_block(nb_filts=filts[4], use_batch_norm=self.use_batch_norm)))
 
         self.pos_S = nn.Parameter(torch.randn(1, 23, filts[-1][-1]))
         self.master1 = nn.Parameter(torch.randn(1, 1, gat_dims[0]))
@@ -520,22 +504,22 @@ class Model(nn.Module):
         self.GAT_layer_S = GraphAttentionLayer(filts[-1][-1],
                                                gat_dims[0],
                                                temperature=temperatures[0],
-                                               batch_norm_always_eval=batch_norm_always_eval)
+                                               use_batch_norm=self.use_batch_norm)
         self.GAT_layer_T = GraphAttentionLayer(filts[-1][-1],
                                                gat_dims[0],
                                                temperature=temperatures[1],
-                                               batch_norm_always_eval=batch_norm_always_eval)
+                                               use_batch_norm=self.use_batch_norm)
 
         self.HtrgGAT_layer_ST11 = HtrgGraphAttentionLayer(
-            gat_dims[0], gat_dims[1], temperature=temperatures[2], batch_norm_always_eval=batch_norm_always_eval)
+            gat_dims[0], gat_dims[1], temperature=temperatures[2], use_batch_norm=self.use_batch_norm)
         self.HtrgGAT_layer_ST12 = HtrgGraphAttentionLayer(
-            gat_dims[1], gat_dims[1], temperature=temperatures[2], batch_norm_always_eval=batch_norm_always_eval)
+            gat_dims[1], gat_dims[1], temperature=temperatures[2], use_batch_norm=self.use_batch_norm)
 
         self.HtrgGAT_layer_ST21 = HtrgGraphAttentionLayer(
-            gat_dims[0], gat_dims[1], temperature=temperatures[2], batch_norm_always_eval=batch_norm_always_eval)
+            gat_dims[0], gat_dims[1], temperature=temperatures[2], use_batch_norm=self.use_batch_norm)
 
         self.HtrgGAT_layer_ST22 = HtrgGraphAttentionLayer(
-            gat_dims[1], gat_dims[1], temperature=temperatures[2], batch_norm_always_eval=batch_norm_always_eval)
+            gat_dims[1], gat_dims[1], temperature=temperatures[2], use_batch_norm=self.use_batch_norm)
 
         self.pool_S = GraphPool(pool_ratios[0], gat_dims[0], 0.3)
         self.pool_T = GraphPool(pool_ratios[1], gat_dims[0], 0.3)
@@ -553,8 +537,6 @@ class Model(nn.Module):
         x = self.conv_time(x, mask=Freq_aug)
         x = x.unsqueeze(dim=1)
         x = F.max_pool2d(torch.abs(x), (3, 3))
-        if self.batch_norm_always_eval:
-            self.first_bn.eval()
         x = self.first_bn(x)
         x = self.selu(x)
 
