@@ -81,6 +81,20 @@ def mel_spectrogram(y, n_fft, num_mels, sampling_rate, hop_size, win_size, fmin,
 
     return spec
 
+
+def get_filelist(filename_list_path, filedir_path, ext='.wav'):
+    """filelist = get_filelist(file_path, ext='.wav')
+
+    input: filename_list_path, str, path to the list of file name
+    input: filedir_path, str, path to the directory of file
+    input: ext, str, extension of fike, default '.wav'
+    output: filelist, list of str
+    """
+    with open(filename_list_path, 'r', encoding = 'utf-8') as fi:
+        filelist = [os.path.join(filedir_path, x.split('|')[0] + ext)
+                    for x in fi.read().split('\n') if len(x) > 0]
+    return filelist
+
 def get_dataset_filelist(a, ext='.wav'):
 
     with open(a.input_training_file, 'r', encoding='utf-8') as fi:
