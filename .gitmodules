@@ -7,3 +7,6 @@
 [submodule "pretrained/hifi-gan-baseline-model"]
 	path = pretrained/hifi-gan-baseline-model
 	url = https://version.aalto.fi/gitlab/speech-synthesis-releases/hifi-gan-baseline-model.git
+[submodule "pretrained/aasist"]
+	path = pretrained/aasist
+	url = https://version.aalto.fi/gitlab/speech-synthesis-releases/aasist-baseline-model.git
