@@ -16,6 +16,7 @@ class AASIST(AasistModelBase):
             temperatures = [2.0, 2.0, 100.0, 100.0],
             device=torch.device('cpu'),
             use_batch_norm=True,
+            use_dropout=True,
             pad_input_to_len: int = None
             ):
         """
@@ -39,7 +40,8 @@ class AASIST(AasistModelBase):
         }
 
         super().__init__(d_args=d_args, device=device, 
-                         use_batch_norm=use_batch_norm)
+                         use_batch_norm=use_batch_norm,
+                         use_dropout=use_dropout)
 
         self.sample_rate = sample_rate
         if self.sample_rate != 16000:

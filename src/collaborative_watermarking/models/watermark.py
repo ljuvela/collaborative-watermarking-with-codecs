@@ -27,12 +27,14 @@ class WatermarkModel(BaseModel):
             self.model = RawNet2(
                 sample_rate=sample_rate,
                 use_batch_norm=config.get('watermark_use_batch_norm', True),
+                use_dropout=config.get('watermark_use_dropout', True),
                 pad_input_to_len=config.get('watermark_input_pad_len', None)
             )
         elif model_type == 'aasist':
             self.model = AASIST(
                 sample_rate=sample_rate,
                 use_batch_norm=config.get('watermark_use_batch_norm', True),
+                use_dropout=config.get('watermark_use_dropout', True),
                 pad_input_to_len=config.get('watermark_input_pad_len', None)
             )
         else:
