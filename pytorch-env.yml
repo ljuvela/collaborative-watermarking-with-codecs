@@ -26,6 +26,7 @@ dependencies:
   - python-wget
   - einops
   - ffmpeg<7
+  - speex
   - gdown
   - pip
   - pip:
