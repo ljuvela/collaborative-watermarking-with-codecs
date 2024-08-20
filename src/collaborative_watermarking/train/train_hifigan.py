@@ -263,6 +263,12 @@ def train(rank, a, h):
             loss_gen_all = loss_gen_s + loss_gen_f + loss_fm_s + loss_fm_f + loss_mel + h.watermark_loss_weight * loss_wm
 
             loss_gen_all.backward()
+
+            # grad clipping for watermark
+            if h.get('watermark_grad_clip', 0.0):
+                if h.watermark_grad_clip > 0.0:
+                    torch.nn.utils.clip_grad_norm_(watermark.parameters(), h.watermark_grad_clip)
+
             optim_g.step()
             optim_wm.step()
 

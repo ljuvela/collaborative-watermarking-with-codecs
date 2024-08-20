@@ -14,6 +14,7 @@ def get_augmentations(config, device, num_workers=0) -> AugmentationContainer:
     segment_size = config['segment_size']
     batch_size = config['batch_size']
     num_random_choose = config.get('augmentation_num_random_choose', 1)
+    grad_clip_norm_level = config.get('grad_clip_norm_level', None)
 
     if augmentations is None:
         aug_train = None
@@ -38,7 +39,8 @@ def get_augmentations(config, device, num_workers=0) -> AugmentationContainer:
             shuffle=True,
             batch_size=batch_size,
             augmentations=augmentations,
-            num_random_choose=num_random_choose
+            num_random_choose=num_random_choose,
+            grad_clip_norm_level=grad_clip_norm_level
         ).to(device)
 
     if augmentations_val is None:

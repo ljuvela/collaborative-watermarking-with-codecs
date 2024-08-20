@@ -61,7 +61,6 @@ def test_vits_inference():
 #     from transformers import VitsModel, AutoTokenizer
 
 #     model = VitsModel.from_pretrained("kakao-enterprise/vits-ljs")
-#     import ipdb; ipdb.set_trace()
 #     tokenizer = AutoTokenizer.from_pretrained("kakao-enterprise/vits-ljs")
 
 #     text = "Hey, it's Hugging Face on the phone"
