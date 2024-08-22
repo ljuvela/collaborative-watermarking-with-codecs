@@ -70,3 +70,54 @@ def get_augmentations(config, device, num_workers=0) -> AugmentationContainer:
         ).to(device)
 
     return aug_train, aug_val
+
+
+
+def get_augmentations_eval(config, device, batch_size=None, num_workers=0) -> AugmentationContainer:
+    """ get_augmentations_eval(config, device, num_workers=0, batch_size=None)
+    
+    return augmentation for evaluation
+    """
+    augmentations = config.get('augmentation_evaluation', None)
+
+    sampling_rate = config['sampling_rate']
+    segment_size = config['segment_size']
+
+    # we need to specify batch size based on configuration of boostrp reps
+    if batch_size is None:
+        batch_size = config['batch_size']
+        
+    num_random_choose = config.get('augmentation_num_random_choose', 1)
+
+    if augmentations is None:
+        aug_eval = None
+        aug_name = ['None']
+    elif augmentations == 'none':
+        aug_eval = None
+        aug_name = ['None']        
+    elif augmentations == 'all':
+        aug_eval = AugmentationContainerAllDarea(
+            sample_rate=sampling_rate,
+            segment_size=segment_size,
+            partition="train",
+            resample=True,
+            shuffle=True,
+            batch_size=batch_size,
+            num_random_choose=num_random_choose
+        ).to(device)
+        # this should be returned by AugmentationContainerAllDarea
+        aug_name = ["noise", "reverb", "codec_mp3_32kbit", "codec_ogg_vorbis_32kbit"]
+    else:
+        aug_eval = AugmentationContainerKeywords(
+            sample_rate=sampling_rate,
+            segment_size=segment_size,
+            partition="train",
+            resample=True,
+            shuffle=True,
+            batch_size=batch_size,
+            augmentations=augmentations,
+            num_random_choose=num_random_choose
+        ).to(device)
+        aug_name = augmentations
+
+    return aug_eval, aug_name
