@@ -304,6 +304,7 @@ def train(rank, a, h):
 
                 # Tensorboard summary logging
                 if steps % a.summary_interval == 0 or force_logging:
+
                     sw.add_scalar("training/gen_loss_total", loss_gen_all, steps)
                     sw.add_scalar("training/mel_spec_error", mel_error, steps)
                     # Framed Discriminator losses
@@ -323,6 +324,9 @@ def train(rank, a, h):
                     # WATERMARK LOSSES
                     sw.add_scalar(f"training_watermark/{watermark.model_type}_real", sum(loss_r_wm), steps)
                     sw.add_scalar(f"training_watermark/{watermark.model_type}_fake", sum(loss_f_wm), steps)
+
+                    if not torch.isfinite(loss_gen_all):
+                        raise RuntimeError("Loss is not finite; stopping training.")
 
                     # log minibatch EER
                     if a.log_training_eer:
