@@ -239,29 +239,43 @@ def main():
     parser.add_argument('--input_wavs_marked_dir', default='LJSpeech-1.1/wavs')
     parser.add_argument('--input_wavs_nomark_dir', default='LJSpeech-1.1/wavs')    
     parser.add_argument('--input_wavs_marked_file', default='LJSpeech-1.1/validation.txt')
-    parser.add_argument('--input_wavs_nomark_file', default='LJSpeech-1.1/validation.txt')    
-    parser.add_argument('--config', default='')    
+    parser.add_argument('--input_wavs_nomark_file', default='LJSpeech-1.1/validation.txt')
+    parser.add_argument('--config_model', default='')
+    parser.add_argument('--config_eval', default='')
     parser.add_argument('--checkpoint_path', default='cp_hifigan')
     parser.add_argument('--pretrained_watermark_path', default=None)
     parser.add_argument('--fine_tuning', default=False, type=bool)
     parser.add_argument('--wavefile_ext', default='.wav', type=str)
     parser.add_argument('--output_score_csv', default='scores.csv', type=str)
-    parser.add_argument('--num_bootstrap_reps', default=20, type=int)
+    parser.add_argument('--num_bootstrap_reps', default=5, type=int)
     
     
     a = parser.parse_args()
-    with open(a.config) as f:
+    print(a)
+    # load model configuration file
+    with open(a.config_model) as f:
         data = f.read()
-
     json_config = json.loads(data)
     h = AttrDict(json_config)
 
+    # load evaluation configuration file
+    with open(a.config_eval) as f_eval:
+        data_eval = f_eval.read()
+    json_config_eval = json.loads(data_eval)
+    h_eval = AttrDict(json_config_eval)
+
+    # over-write configuration in h with h_eval
+    for key in h_eval.keys():
+        print("Evaluation configuration {:s}: {:s}".format(key, str(h_eval[key])))
+        h[key] = h_eval[key]
+    
+    # setup
     torch.manual_seed(h.seed)
     if torch.cuda.is_available():
         torch.cuda.manual_seed(h.seed)
         h.num_gpus = torch.cuda.device_count()
         h.batch_size = int(h.batch_size / h.num_gpus)
-        print('Batch size per GPU :', h.batch_size)
+        #print('Batch size per GPU :', h.batch_size)
     else:
         pass
 
