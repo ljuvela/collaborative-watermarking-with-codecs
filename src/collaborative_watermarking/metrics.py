@@ -213,6 +213,11 @@ def compute_metrics_csv(score_pd):
     for eer, tag in zip(eers, tags):
         print("EER, {:s}, {:.3f} %".format(tag, eer * 100))
 
+    # save to pd
+    result_pd = pd.DataFrame.from_dict({'Tag': tags, 'Result': np.array(eers) * 100})
+    result_pd['Metric'] = 'EER'
+    return result_pd
+        
 def main():
 
     print("Evaluating detection performance")
@@ -220,14 +225,23 @@ def main():
     # parse input arguments
     parser = argparse.ArgumentParser()
     parser.add_argument('--score_file', default='scores.csv', type=str)
+    parser.add_argument('--metric_output_file', default='', type=str)
     parser.add_argument('--score_format', default='csv', type=str)
     a = parser.parse_args()
 
+    if len(a.metric_output_file):
+        metric_output_file = a.metric_output_file
+    else:
+        ext = a.score_file.split('.')[-1]
+        metric_output_file = '.'.join(a.score_file.split('.')[:-1] + ['result', ext])
+    
     # load the score file
     if a.score_format == 'csv':
         # csv format
         score_pd = pd.read_csv(a.score_file)
-        compute_metrics_csv(score_pd)
+        result_pd = compute_metrics_csv(score_pd)
+        # save output
+        result_pd.to_csv(metric_output_file, index=False)
     else:
         print("Format {:s} is not supported".format(a.score_format))
         
