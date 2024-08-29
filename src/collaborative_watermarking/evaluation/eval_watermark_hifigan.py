@@ -197,7 +197,7 @@ def evaluation(rank, a, h):
                     ])
                 
                 # apply augmentation
-                audio_aug = func_augmentation(audio_batch).to(device)
+                audio_aug = func_augmentation(audio_batch.to(device))
                 
                 # detection
                 scores_n, scores_p = watermark(audio_aug[:aug_bs//2], audio_aug[aug_bs//2:])
