@@ -1,9 +1,33 @@
+#!/usr/bin/env python
+"""
+metrics.py
+
+functions and classes for computing the evaluation metrics
+"""
+import argparse
+
 import torch
 import numpy as np
+import pandas as pd
 
+from collaborative_watermarking.utils import Labels, ScoreColumns
 
 def compute_det_curve(target_scores, nontarget_scores):
+    """compute DET curve values
+                                                                           
+    input
+    -----
+      target_scores:    np.array, target trial scores
+      nontarget_scores: np.array, nontarget trial scores
+    
+    output
+    ------
+      frr:   np.array, FRR, (#N, ), where #N is total number of scores + 1
+      far:   np.array, FAR, (#N, ), where #N is total number of scores + 1
+      thr:   np.array, threshold, (#N, )
 
+    source: https://github.com/asvspoof-challenge/2021/blob/main/eval-package/eval_metrics.py
+    """    
     n_scores = target_scores.size + nontarget_scores.size
     all_scores = np.concatenate((target_scores, nontarget_scores))
     labels = np.concatenate((np.ones(target_scores.size), np.zeros(nontarget_scores.size)))
@@ -16,20 +40,39 @@ def compute_det_curve(target_scores, nontarget_scores):
     tar_trial_sums = np.cumsum(labels)
     nontarget_trial_sums = nontarget_scores.size - (np.arange(1, n_scores + 1) - tar_trial_sums)
 
-    frr = np.concatenate((np.atleast_1d(0), tar_trial_sums / target_scores.size))  # false rejection rates
-    far = np.concatenate((np.atleast_1d(1), nontarget_trial_sums / nontarget_scores.size))  # false acceptance rates
-    thresholds = np.concatenate((np.atleast_1d(all_scores[indices[0]] - 0.001), all_scores[indices]))  # Thresholds are the sorted scores
+    # false rejection rates
+    frr = np.concatenate((np.atleast_1d(0), tar_trial_sums / target_scores.size))
+    # false acceptance rates
+    far = np.concatenate((np.atleast_1d(1), nontarget_trial_sums / nontarget_scores.size))
+    # Thresholds are the sorted scores
+    thresholds = np.concatenate((np.atleast_1d(all_scores[indices[0]] - 0.001), all_scores[indices]))
 
     return frr, far, thresholds
 
 
 def compute_eer(target_scores, nontarget_scores):
-    """ Returns equal error rate (EER) and the corresponding threshold. """
+    """
+    compute eer
+                                                                           
+    input
+    -----
+      target_scores:    np.array, target trial scores
+      nontarget_scores: np.array, nontarget trial scores
+    
+    output
+    ------
+      eer:   float, EER value in [0, 1]
+      thr: float, threshold corresponding to EER
+
+    source: https://github.com/asvspoof-challenge/2021/blob/main/eval-package/eval_metrics.py
+    """    
     frr, far, thresholds = compute_det_curve(target_scores, nontarget_scores)
     abs_diffs = np.abs(frr - far)
     min_index = np.argmin(abs_diffs)
     eer = np.mean((frr[min_index], far[min_index]))
     return eer, thresholds[min_index]
+
+
 
 
 class DiscriminatorMetrics():
@@ -38,7 +81,7 @@ class DiscriminatorMetrics():
         
         self._scores_real = []
         self._scores_fake = []
-    
+        
     @property
     def scores_real(self):
         return torch.cat(self._scores_real, dim=0)
@@ -136,3 +179,71 @@ class WatermarkEER(torch.nn.Module):
         
         metric.accumulate([wm_real], [wm_fake])
         return metric.eer
+
+
+def compute_metrics_csv(score_pd):
+    """
+    input: score_pd, pandas dataFrame, containing score and labels
+    """
+    def _compute_eer_pd(score_pd):
+        # retrive scores from dataFrame
+        scores_p = score_pd.query('{:s} == "{:s}"'.format(ScoreColumns.LABEL, Labels.REAL))
+        scores_n = score_pd.query('{:s} == "{:s}"'.format(ScoreColumns.LABEL, Labels.FAKE))
+        # compute EER
+        eer, threshold = compute_eer(scores_p[ScoreColumns.SCORE].to_numpy(),
+                                     scores_n[ScoreColumns.SCORE].to_numpy())
+        return eer
+
+    # eer pooled over all the conditions
+    eers = []
+    tags = []
+    eer = _compute_eer_pd(score_pd)
+    eers.append(eer)
+    tags.append('pooled')
+
+    # eer in each augmentation method
+    aug_methods = sorted(score_pd[ScoreColumns.AUGMENTATION].unique())
+    for aug_method in aug_methods:
+        score_pd_tmp = score_pd.query('{:s} == "{:s}"'.format(ScoreColumns.AUGMENTATION, aug_method))
+        eer = _compute_eer_pd(score_pd_tmp)
+        eers.append(eer)
+        tags.append(aug_method)
+
+    # print results
+    for eer, tag in zip(eers, tags):
+        print("EER, {:s}, {:.3f} %".format(tag, eer * 100))
+
+    # save to pd
+    result_pd = pd.DataFrame.from_dict({'Tag': tags, 'Result': np.array(eers) * 100})
+    result_pd['Metric'] = 'EER'
+    return result_pd
+        
+def main():
+
+    print("Evaluating detection performance")
+    
+    # parse input arguments
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--score_file', default='scores.csv', type=str)
+    parser.add_argument('--metric_output_file', default='', type=str)
+    parser.add_argument('--score_format', default='csv', type=str)
+    a = parser.parse_args()
+
+    if len(a.metric_output_file):
+        metric_output_file = a.metric_output_file
+    else:
+        ext = a.score_file.split('.')[-1]
+        metric_output_file = '.'.join(a.score_file.split('.')[:-1] + ['result', ext])
+    
+    # load the score file
+    if a.score_format == 'csv':
+        # csv format
+        score_pd = pd.read_csv(a.score_file)
+        result_pd = compute_metrics_csv(score_pd)
+        # save output
+        result_pd.to_csv(metric_output_file, index=False)
+    else:
+        print("Format {:s} is not supported".format(a.score_format))
+        
+if __name__ == "__main__":
+    main()
