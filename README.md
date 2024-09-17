@@ -1,14 +1,37 @@
 # Collaborative Watermarking
 
+Submitted to ICASSP 2025.
+
 
 ## Environment setup
 
+
+Create a new conda environment with the provided environment file (using mamba package manager):
 ```bash
-mamba env create -n CollaborativeWatermarking2024 -f pytorch-env.yml
+mamba env create -n collaborative-watermarking-with-codecs -f pytorch-env.yml
+mamba activate collaborative-watermarking-with-codecs
 ```
 
-Install differentiable augmentation and robustness evaluation package
+### Installing DAREA
+Install differentiable augmentation and robustness evaluation package.
+
+Follow the insallation instructions at:
 https://github.com/ljuvela/DAREA
+
+This should be installed in the same environment as the collaborative watermarking package.
+
+
+### Installing DAC
+```
+git submodule update --init --recursive
+cd src/collaborative_watermarking/third_party/dac
+pip install -e ".[dev]"
+```
+
+Note that the pesq package needs to compile C/C++ extensions and requires `gcc` or similar compiler on the system.
+
+
+
 
 Set environment variables:
 
@@ -21,10 +44,18 @@ Install the package in editable mode:
 pip install -e .
 ```
 
+
+
+
+
 Run unit tests
 ```bash
-pytest tests
+pytest -s tests
 ```
+
+
+
+
 
 
 ### Example Slurm batch script
@@ -75,61 +106,8 @@ python src/collaborative_watermarking/train/train_hifigan.py \
     --log_training_eer True \
     --use_augmentation False \
     --checkpoint_path "ckpt/cp_hifigan_$ID"
-
-```
-
-
-### Installing DAC
-
-```
-git submodule update --init --recursive
-cd src/collaborative_watermarking/third_party/dac
-pip install -e ".[dev]"
-```
-
-Note that the pesq package needs to compile extensions and requires gcc or similar compiler on the system
-
-Download pretrained models
-
-```bash
-python3 -m dac download --model_type 44khz # downloads the 44kHz variant
-```
-
-### VITS setup
-
-Compile monotonic align
-```bash
-cd src/collaborative_watermarking/third_party/vits/monotonic_align
-python setup.py build_ext --inplace
-mkdir monotonic_align
-cp build/lib.linux-x86_64-cpython-310/vits/monotonic_align monotonic_align
-
-```
-
-
-```bash
-mkdir -p pre_trained/vits
-gdown -O pre_trained/vits/ 'https://drive.google.com/uc?id=1q86w74Ygw2hNzYP9cWkeClGT5X25PvBT'
-gdown -O pre_trained/vits/ 'https://drive.google.com/uc?id=11aHOlhnxzjpdWDpsz1vFDCzbeEfoIxru'
-```
-
-LJSpeech data preparation
-
-Create filelists with absolute paths
-```bash
-python scripts/process_ljspeech_filelist.py --target_dir experiments/vits/filelists --prefix $DATA/LJSpeech-1.1/wavs/
-
-python scripts/process_vctk_filelist.py --target_dir experiments/vits/filelists --prefix $DATA/torchaudio/VCTK-Corpus-0.92/wav48_silence_trimmed/
-
 ```
 
 
 
-### Adding models to huggingface
 
-
-Initial git lsf setup
-```bash
-git-lfs track "*.pth"
-git add .gitattributes
-```
