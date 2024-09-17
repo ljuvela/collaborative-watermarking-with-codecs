@@ -1,0 +1,14 @@
+experiments/*
+scripts/local/*
+output/*
+
+*.pyc
+*.egg-info
+
+*.conda
+
+ckpt/*
+ckpt_dac/*
+logs/*
+
+slurm-*.out

@@ -1,0 +1,12 @@
+[submodule "src/collaborative_watermarking/third_party/dac"]
+	path = src/collaborative_watermarking/third_party/dac
+	url = https://github.com/descriptinc/descript-audio-codec.git
+[submodule "pretrained/lfcc_lcnn"]
+	path = pretrained/lfcc_lcnn
+	url = https://version.aalto.fi/gitlab/speech-synthesis-releases/lfcc-lcnn-pretrained.git
+[submodule "pretrained/hifi-gan-baseline-model"]
+	path = pretrained/hifi-gan-baseline-model
+	url = https://version.aalto.fi/gitlab/speech-synthesis-releases/hifi-gan-baseline-model.git
+[submodule "pretrained/aasist"]
+	path = pretrained/aasist
+	url = https://version.aalto.fi/gitlab/speech-synthesis-releases/aasist-baseline-model.git
