@@ -92,6 +92,15 @@ def get_dataset_filelist(a, ext='.wav'):
                             for x in fi.read().split('\n') if len(x) > 0]
     return training_files, validation_files
 
+def get_filelist(filelist_path, wavs_dir, ext='.wav'):
+
+    with open(filelist_path, 'r', encoding='utf-8') as fi:
+        filelist = [os.path.join(wavs_dir, x.split('|')[0] + ext)
+                          for x in fi.read().split('\n') if len(x) > 0]
+
+
+    return filelist
+
 
 class MelDataset(torch.utils.data.Dataset):
     def __init__(self, training_files, segment_size, n_fft, num_mels,
