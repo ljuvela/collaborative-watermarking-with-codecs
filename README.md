@@ -1,7 +1,15 @@
-# Collaborative Watermarking
+# Collaborative Watermarking with Codecs
 
-Submitted to ICASSP 2025.
+This repository contains code and supplementary material related to our recent paper **Audio Codec Augmentation for Robust Collaborative Watermarking of Speech Synthesis**
+(Submitted to ICASSP 2025)
 
+Paper pre-print will be made available once the supplementary material is complete.
+
+Audio samples are now available at the demo page
+http://ljuvela.github.io/collaborative-watermarking-with-codecs-demo
+
+Model checkpoints will be available at 
+https://huggingface.co/ljuvela/collaborative-watermarking-with-codecs
 
 ## Environment setup
 
