@@ -1,7 +1,15 @@
-# Collaborative Watermarking
+# Collaborative Watermarking with Codecs
 
-Submitted to ICASSP 2025.
+This repository contains code and supplementary material related to our recent paper **Audio Codec Augmentation for Robust Collaborative Watermarking of Speech Synthesis**
+(Submitted to ICASSP 2025)
 
+Paper pre-print will be made available once the supplementary material is complete.
+
+Audio samples are  available at the demo page
+http://ljuvela.github.io/collaborative-watermarking-with-codecs-demo
+
+Model checkpoints are available be available at 
+[https://huggingface.co/ljuvela/collaborative-watermarking-with-codecs](https://huggingface.co/ljuvela/checkpoints-for-collaborative-watermarking-with-codecs)
 
 ## Environment setup
 
@@ -38,10 +46,8 @@ pip install -e ".[dev]"
 
 Note that the pesq package needs to compile C/C++ extensions and requires `gcc` or similar compiler on the system.
 
+### Rendering audio with pre-trained models
 
-
-
-Set environment variables:
 
 ```bash
 export DAREA_DATA_PATH=/path/to/data
