@@ -46,51 +46,39 @@ pip install -e ".[dev]"
 
 Note that the pesq package needs to compile C/C++ extensions and requires `gcc` or similar compiler on the system.
 
-### Rendering audio with pre-trained models
+## Dataset 
 
+LibriTTS-R dataset was used for all experiments. The dataset is available at:
+http://www.openslr.org/141/
 
-```bash
-export DAREA_DATA_PATH=/path/to/data
-```
-
-Install the package in editable mode:
-```bash
-pip install -e .
-```
-
-
-
-
-
-Run unit tests
-```bash
-pytest -s tests
-```
-
+This repository includes some wav files from the dataset for demonstration purposes (as per CC BY 4.0 licence). For full replication, the full dataset should be downloaded separately.
 
 ### Rendering audio with pre-trained models
 
-
+You can download all the models used in experiments by cloning the following repository:
 ```bash
+git clone https://huggingface.co/ljuvela/checkpoints-for-collaborative-watermarking-with-codecs
+```
 
-checkpoints_dir=~/Downloads/cp_hifigan_143
+Assuming the checkpoints are not downloaded in the current directory, you can render audio with the following command:
+```bash
+model_id=collab-dac # or any other model id
+checkpoints_dir=./checkpoints-for-collaborative-watermarking-with-codecs/$model_id/
 python src/collaborative_watermarking/render/render_hifigan.py \
     --config $checkpoints_dir/config.json \
-    --input_file src/collaborative_watermarking/filelists/libritts/libritts_filelist_test.txt \
-    --input_wavs_dir ~/DATA/LibriTTS-R/LibriTTS_R/ \
-    --output_wavs_dir output \
+    --input_file data/input_wavs_demo/filelist.txt \
+    --input_wavs_dir data/input_wavs_demo \
+    --output_wavs_dir output/$model_id \
     --checkpoint_path $checkpoints_dir \
-    --wavefile_ext "" \
-    --max_files 10
-
-```
-src/collaborative_watermarking/filelists/libritts/libritts_filelist_test.txt
-
+    --wavefile_ext ""
 ```
 
 
-### Example Slurm batch script
 
+### Training models
+
+
+Example Slurm batch script
 
 ```bash
 #!/bin/zsh
@@ -106,10 +94,7 @@ ID=01
 # Activate environment
 source ~/.zshrc
 module load mamba
-conda activate CollaborativeWatermarking2024
-
-# Set DAREA data path
-export DAREA_DATA_PATH='<path-to-data>'
+conda activate collaborative-watermarking-with-codecs
 
 # Set current working directory
 cd <path-to-source-code>/collaborative-watermarking

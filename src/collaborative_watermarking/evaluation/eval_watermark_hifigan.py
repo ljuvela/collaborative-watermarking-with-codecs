@@ -237,7 +237,7 @@ def main():
 
     parser.add_argument('--group_name', default=None)
     parser.add_argument('--input_wavs_marked_dir', default='LJSpeech-1.1/wavs')
-    parser.add_argument('--input_wavs_nomark_dir', default='LJSpeech-1.1/wavs')    
+    parser.add_argument('--input_wavs_nomark_dir', default='LJSpeech-1.1/wavs')
     parser.add_argument('--input_wavs_marked_file', default='LJSpeech-1.1/validation.txt')
     parser.add_argument('--input_wavs_nomark_file', default='LJSpeech-1.1/validation.txt')
     parser.add_argument('--config_model', default='')
