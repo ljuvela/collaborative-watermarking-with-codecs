@@ -41,30 +41,6 @@ Note that the pesq package needs to compile C/C++ extensions and requires `gcc` 
 
 
 
-Set environment variables:
-
-```bash
-export DAREA_DATA_PATH=/path/to/data
-```
-
-Install the package in editable mode:
-```bash
-pip install -e .
-```
-
-
-
-
-
-Run unit tests
-```bash
-pytest -s tests
-```
-
-
-
-
-
 
 ### Example Slurm batch script
 
