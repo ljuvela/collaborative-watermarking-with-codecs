@@ -74,54 +74,63 @@ python src/collaborative_watermarking/render/render_hifigan.py \
 ```
 
 
-
 ### Training models
 
 
-Example Slurm batch script
+Example Slurm batch script for training a model with DAC. This is a normal shell script, but the `#SBATCH` lines are used to specify the job parameters for the Slurm scheduler.
 
 ```bash
 #!/bin/zsh
-#SBATCH --time=48:00:00
+##SBATCH --time=48:00:00
+#SBATCH --time=24:00:00
 #SBATCH --gres=gpu:a100:1
 #SBATCH --mem=16G
 #SBATCH --cpus-per-task=5
-#SBATCH --job-name=Job-1
+#SBATCH --job-name=collab-dac
 
 # Set job ID
-ID=01
+ID=collab-dac
 
 # Activate environment
 source ~/.zshrc
 module load mamba
-conda activate collaborative-watermarking-with-codecs
+conda activate CollaborativeWatermarking2024
+
+# Set paths to match your system
+DATA=<path/to/data/dir>
+WORKDIR=<path/to/collaborative-watermarking-with-codecs>
+# Set path to config file (for example DAC)
+config_file=checkpoints-for-collaborative-watermarking-with-codecs/collab-dac/config.json
+# Set path to LibriTTS-R dataset
+libritts_dir=</path/to/LibriTTS_R/>
 
 # Set current working directory
-cd <path-to-source-code>/collaborative-watermarking
+cd $WORKDIR
 
-# Set filelists and configs
-train_file=<path-to-source-code>/collaborative-watermarking/src/collaborative_watermarking/filelists/vctk/vctk_filelist_mic2_train.txt
-valid_file=<path-to-source-code>/collaborative-watermarking/src/collaborative_watermarking/filelists/vctk/vctk_filelist_mic2_val.txt
-config_file=<path-to-source-code>/collaborative-watermarking/experiments/$ID/config_v1.json
-vctk_dir=<path-to-data>/torchaudio/VCTK-Corpus-0.92/wav48_silence_trimmed
-pretrained_hifigan_path=<path-to-data>/pretrained/hifigan/UNIVERSAL_V1
+# Set filelists and configs (provided in the repository for LibriTTS-R)
+train_file=$WORKDIR/src/collaborative_watermarking/filelists/libritts/libritts_filelist_train.txt 
+valid_file=$WORKDIR/src/collaborative_watermarking/filelists/libritts/libritts_filelist_val.txt 
 
-# total num epochs counts when continuing training
-epochs=100
+# pretrained baseline models (included in git lfs submodules)
+pretrained_hifigan_path=pretrained/hifi-gan-baseline-model/UNIVERSAL_V1
+pretrained_aasist_path=pretrained/aasist/AASIST.pth
+
+# total num epochs counts for fine-tuning
+epochs=20
 
 python src/collaborative_watermarking/train/train_hifigan.py \
     --config $config_file \
     --input_training_file $train_file \
     --input_validation_file $valid_file \
-    --input_wavs_dir $vctk_dir \
+    --input_wavs_dir $libritts_dir \
     --pretrained_hifigan_path $pretrained_hifigan_path \
+    --pretrained_watermark_path $pretrained_aasist_path \
     --training_epochs $epochs \
     --wavefile_ext "" \
     --validation_interval 2000 \
     --summary_interval 200 \
-    --log_training_eer True \
-    --use_augmentation False \
-    --checkpoint_path "ckpt/cp_hifigan_$ID"
+    --checkpoint_path "ckpt/hifi_gan/$ID"
+
 ```
 
 
