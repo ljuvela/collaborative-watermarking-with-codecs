@@ -5,11 +5,11 @@ This repository contains code and supplementary material related to our recent p
 
 Paper pre-print will be made available once the supplementary material is complete.
 
-Audio samples are now available at the demo page
+Audio samples are  available at the demo page
 http://ljuvela.github.io/collaborative-watermarking-with-codecs-demo
 
-Model checkpoints will be available at 
-https://huggingface.co/ljuvela/collaborative-watermarking-with-codecs
+Model checkpoints are available be available at 
+[https://huggingface.co/ljuvela/collaborative-watermarking-with-codecs](https://huggingface.co/ljuvela/checkpoints-for-collaborative-watermarking-with-codecs)
 
 ## Environment setup
 
