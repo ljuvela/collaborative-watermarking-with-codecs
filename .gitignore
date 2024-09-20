@@ -1,6 +1,7 @@
 experiments/*
 scripts/local/*
 output/*
+*.DS_Store
 
 *.pyc
 *.egg-info
