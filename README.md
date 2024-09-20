@@ -12,6 +12,14 @@ mamba env create -n collaborative-watermarking-with-codecs -f pytorch-env.yml
 mamba activate collaborative-watermarking-with-codecs
 ```
 
+### Pre-trained models for initialization
+
+Pre-trained models are distributed with Git LFS and included as submodules. To download the pre-trained models, run the following command:
+```bash
+git submodule update --init --recursive
+```
+
+
 ### Installing DAREA
 Install differentiable augmentation and robustness evaluation package.
 
@@ -54,8 +62,25 @@ pytest -s tests
 ```
 
 
+### Rendering audio with pre-trained models
 
 
+```bash
+
+checkpoints_dir=~/Downloads/cp_hifigan_143
+python src/collaborative_watermarking/render/render_hifigan.py \
+    --config $checkpoints_dir/config.json \
+    --input_file src/collaborative_watermarking/filelists/libritts/libritts_filelist_test.txt \
+    --input_wavs_dir ~/DATA/LibriTTS-R/LibriTTS_R/ \
+    --output_wavs_dir output \
+    --checkpoint_path $checkpoints_dir \
+    --wavefile_ext "" \
+    --max_files 10
+
+```
+src/collaborative_watermarking/filelists/libritts/libritts_filelist_test.txt
+
+```
 
 
 ### Example Slurm batch script
