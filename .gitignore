@@ -1,6 +1,8 @@
 experiments/*
 scripts/local/*
 output/*
+
+checkpoints-for-collaborative-watermarking-with-codecs/*
 *.DS_Store
 
 *.pyc
